@@ -1,0 +1,507 @@
+{
+  "name": "Job Automation – Germany (Werkstudent)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -336,
+        -496
+      ],
+      "id": "5e7d0893-d0d6-4e98-9bca-6cbcade77bbf",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v4/jobs",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "publishedSince",
+              "value": "1"
+            },
+            {
+              "name": "size",
+              "value": "250"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "jobboerse-jobsuche"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -112,
+        -496
+      ],
+      "id": "e4f8a599-4202-447c-a2a3-c676fc221704",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1TAc_sLpbw1Hq13pbVYV3_QmHIhZeFNFS_lZVBVV7LGk",
+          "mode": "list",
+          "cachedResultName": "Job Applications – Germany (Werkstudent)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TAc_sLpbw1Hq13pbVYV3_QmHIhZeFNFS_lZVBVV7LGk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TAc_sLpbw1Hq13pbVYV3_QmHIhZeFNFS_lZVBVV7LGk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {
+            "Date Added": "={{ $now.format('yyyy-MM-dd') }}",
+            "Job Title": "={{ $json.titel }}\n",
+            "Company": "={{ $json.arbeitgeber }}",
+            "Location": "={{ $json.arbeitsort?.ort + ', ' + $json.arbeitsort?.region }}",
+            "Job Type": "Werkstudent",
+            "Apply Link": "={{ 'https://jobboerse.arbeitsagentur.de/vamJB/stellenangeboteFinden.html?refnr=' + $json.refnr }}",
+            "Source": "Bundesagentur für Arbeit API",
+            "Status": "Not Applied",
+            "Notes": "=Auto-added via n8n on {{ $now.format('yyyy-MM-dd HH:mm') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date Added",
+              "displayName": "Date Added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Type",
+              "displayName": "Job Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Apply Link",
+              "displayName": "Apply Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1680,
+        -592
+      ],
+      "id": "61b60ab7-da15-49f4-8b76-ad875a5d4d47",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XU0VARl7doZ6mDpm",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TAc_sLpbw1Hq13pbVYV3_QmHIhZeFNFS_lZVBVV7LGk",
+          "mode": "list",
+          "cachedResultName": "Job Applications – Germany (Werkstudent)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TAc_sLpbw1Hq13pbVYV3_QmHIhZeFNFS_lZVBVV7LGk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TAc_sLpbw1Hq13pbVYV3_QmHIhZeFNFS_lZVBVV7LGk/edit#gid=0"
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "specifyRangeA1",
+              "range": "A1:I"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1008,
+        -496
+      ],
+      "id": "61369162-7394-4306-9e4c-7a78e790d663",
+      "name": "Get row(s) in sheet",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XU0VARl7doZ6mDpm",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all jobs from previous node\nconst jobs = $input.all();\n\n// STRICT exclusion list - if ANY of these appear, reject immediately\nconst strictExclude = [\n  // Food & Kitchen\n  'koch', 'köchin', 'beikoch', 'konditor', 'gastronomie', 'servicekraft',\n  \n  // Cleaning\n  'reinigung', 'reiniger', 'gebäudereiniger',\n  \n  // Logistics & Warehouse\n  'lager', 'lagerwirtschaft', 'lagerlogistik', 'transportarbeiter',\n  'staplerfahrer', 'gabelstapler',\n  \n  // Manual trades\n  'mechaniker', 'anlagenmechaniker', 'lackierer', 'fahrzeuglackierer',\n  'tischler', 'gerüstbauer', 'dachdecker', 'schweißer', 'schlosser',\n  'gärtner', 'fleischer', 'metzger'\n];\n\n// HIGH VALUE keywords - only keep if these are present\nconst highValueKeywords = [\n  // Pure IT/Tech\n  'informatik', 'software', 'developer', 'entwickler', 'fachinformatiker',\n  'systemintegration', 'it-', 'web', 'data', 'daten', 'sap', 'system',\n  'netzwerk', 'network', 'cloud', 'digital',\n  \n  // Business/Office (selective)\n  'business', 'consultant', 'berater', 'controlling', 'account',\n  'bürokaufmann', 'bürokommunikation', 'wirtschaftsinformatik',\n  'betriebswirt', 'management', 'assistent',\n  \n  // Professional roles\n  'analyst', 'coordinator', 'specialist', 'junior'\n];\n\n// Additional MEDIUM value keywords (broader but still acceptable)\nconst mediumValueKeywords = [\n  'kaufmännisch', 'einkäufer', 'verwaltung', 'vertriebsassistent',\n  'empfangskraft', 'büro'\n];\n\n// Filter with strict logic\nconst relevantJobs = jobs.filter(item => {\n  const title = (item.json[\"Job Title\"] || \"\").toLowerCase();\n  \n  // STEP 1: Immediate rejection if ANY exclude keyword is present\n  const shouldExclude = strictExclude.some(keyword => title.includes(keyword));\n  if (shouldExclude) {\n    return false; // Reject immediately\n  }\n  \n  // STEP 2: Check if it has HIGH value keywords\n  const hasHighValue = highValueKeywords.some(keyword => title.includes(keyword));\n  if (hasHighValue) {\n    return true; // Keep it - high quality\n  }\n  \n  // STEP 3: Check if it has MEDIUM value keywords (more selective)\n  const hasMediumValue = mediumValueKeywords.some(keyword => title.includes(keyword));\n  if (hasMediumValue) {\n    // Extra check: make sure it's not a borderline case\n    const isBorderline = title.includes('helfer') || title.includes('hilfskraft');\n    return !isBorderline; // Keep if not a \"helper\" role\n  }\n  \n  // STEP 4: Reject everything else\n  return false;\n});\n\n// Log filtering stats for debugging\nconsole.log(`Filtered ${jobs.length} jobs down to ${relevantJobs.length} relevant jobs`);\n\nreturn relevantJobs;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        -496
+      ],
+      "id": "9932c516-6d5c-47f7-a6a0-06eb4e9f2249",
+      "name": "Filter Relevant Jobs"
+    },
+    {
+      "parameters": {
+        "jsCode": "const jobs = $input.first().json.body.stellenangebote;\n\nreturn jobs.map(job => ({\n  json: {\n    \"Date Added\": new Date().toLocaleDateString('en-US'),\n    \"Job Title\": job.beruf || job.titel || \"N/A\",\n    \"Company\": job.arbeitgeber || \"N/A\",\n    \"Location\": `${job.arbeitsort?.ort || \"\"} ${job.arbeitsort?.plz || \"\"}`.trim() || \"N/A\",\n    \"Job Type\": \"Werkstudent\",\n    \"Apply Link\": `https://www.arbeitsagentur.de/jobsuche/jobdetail/${job.refnr}`,\n    \"Source\": \"Bundesagentur für Arbeit\",\n    \"Status\": \"New\",\n    \"Notes\": \"\"\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        -496
+      ],
+      "id": "59aa4624-8da5-4c73-b13b-28b86e1a2869",
+      "name": "Transform Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get existing rows from Google Sheets\nconst existingRows = $items(\"Get row(s) in sheet\");\nconst existingLinks = new Set(\n  existingRows\n    .map(r => r.json[\"Apply Link\"])\n    .filter(Boolean)\n    .map(l => l.trim().toLowerCase())\n);\n\n// 2. Get new jobs from LOCATION FILTER node (not Filter Relevant Jobs!)\nconst newJobs = $items(\"Location Filter\");  // ✅ CHANGED: Now references Location Filter\n\n// 3. Filter only jobs not already in sheet\nconst uniqueJobs = newJobs.filter(item => {\n  const link = item.json[\"Apply Link\"];\n  if (!link) return false;\n  return !existingLinks.has(link.trim().toLowerCase());\n});\n\n// 4. Log for debugging\nconsole.log(`Deduplication: ${newJobs.length} local jobs → ${uniqueJobs.length} are new and unique`);\n\n// 5. Return only unique jobs\nreturn uniqueJobs;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        -496
+      ],
+      "id": "f0fc44c7-733c-41b7-a702-3b391301f306",
+      "name": "Remove Duplicates",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get filtered jobs from previous node\nconst jobs = $input.all();\n\n// PREFERRED LOCATIONS (Cities within 300km of Hamm + NRW)\nconst preferredLocations = [\n  // Very close to Hamm (<100km) - TOP PRIORITY\n  'hamm', 'dortmund', 'münster', 'bielefeld', 'paderborn',\n  'soest', 'lippstadt', 'unna', 'kamen', 'beckum', 'ahlen',\n  'bochum', 'essen', 'hagen', 'iserlohn', 'gütersloh',\n  \n  // NRW major cities (<200km)\n  'düsseldorf', 'köln', 'bonn', 'duisburg', 'wuppertal',\n  'gelsenkirchen', 'bottrop', 'oberhausen', 'mönchengladbach',\n  'krefeld', 'aachen', 'leverkusen', 'neuss', 'bergisch',\n  \n  // NRW region keywords\n  'nordrhein', 'westfalen', 'nrw', 'ruhrgebiet', 'ruhr',\n  \n  // Nearby regions (200-300km) - for excellent opportunities\n  'hannover', 'bremen', 'kassel', 'göttingen', 'osnabrück',\n  'braunschweig', 'wolfsburg', 'hildesheim',\n  \n  // Hessen (Frankfurt area - 300km)\n  'frankfurt', 'wiesbaden', 'mainz', 'darmstadt', 'offenbach',\n  'rüsselsheim', 'eschborn', 'bad homburg', 'hanau',\n  \n  // Work arrangement (ALWAYS include)\n  'remote', 'hybrid', 'homeoffice', 'home office', 'mobil',\n  'deutschlandweit', 'bundesweit'\n];\n\n// EXCLUDE these locations (too far)\nconst excludeLocations = [\n  'berlin', 'münchen', 'hamburg', 'dresden', 'leipzig',\n  'nürnberg', 'stuttgart', 'karlsruhe', 'mannheim', 'heidelberg',\n  'freiburg', 'ulm', 'augsburg', 'regensburg', 'würzburg',\n  'erfurt', 'jena', 'rostock', 'schwerin', 'kiel', 'flensburg',\n  'saarbrücken', 'trier', 'konstanz', 'lübeck', 'magdeburg'\n];\n\n// Filter by location\nconst localJobs = jobs.filter(item => {\n  const location = (item.json[\"Location\"] || \"\").toLowerCase();\n  \n  // First check: Is it in an excluded (too far) location?\n  const isTooFar = excludeLocations.some(city => location.includes(city));\n  if (isTooFar) {\n    return false; // Reject immediately\n  }\n  \n  // Second check: Is it in a preferred location?\n  const isGoodLocation = preferredLocations.some(loc => location.includes(loc));\n  \n  return isGoodLocation;\n});\n\n// Log results\nconsole.log(`Location filter: ${jobs.length} jobs → ${localJobs.length} local jobs`);\nconsole.log(`Filtered out ${jobs.length - localJobs.length} jobs that are too far`);\n\nreturn localJobs;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        -496
+      ],
+      "id": "7de5bf1a-60af-4be8-ba5a-d139f300e1f7",
+      "name": "Location Filter"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "38bce484-d200-410b-a083-21437ddfd880",
+              "leftValue": "={{ $items(\"Remove Duplicates\").length }}\n",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1456,
+        -496
+      ],
+      "id": "2c1a7273-aaed-455e-947a-138113891ba7",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get new jobs that passed all filters\nconst newJobs = $items(\"Remove Duplicates\");\n\n// Build beautiful embed for each job (max 10)\nconst embeds = newJobs.slice(0, 10).map(item => {\n  const job = item.json;\n  \n  return {\n    title: job[\"Job Title\"],\n    url: job[\"Apply Link\"],\n    color: 3447003,\n    fields: [\n      {\n        name: \"🏢 Company\",\n        value: job[\"Company\"],\n        inline: true\n      },\n      {\n        name: \"📍 Location\", \n        value: job[\"Location\"],\n        inline: true\n      },\n      {\n        name: \"🔗 Apply\",\n        value: `[Click here to apply](${job[\"Apply Link\"]})`,\n        inline: false\n      }\n    ],\n    footer: {\n      text: `Source: ${job[\"Source\"]} • ${job[\"Date Added\"]}`\n    },\n    timestamp: new Date().toISOString()\n  };\n});\n\n// Build the complete Discord webhook payload as a proper object\nconst payload = {\n  content: `🎯 **${newJobs.length} New Werkstudent Job${newJobs.length > 1 ? 's' : ''} Found!**${newJobs.length > 10 ? `\\n_(Showing first 10 of ${newJobs.length})_` : ''}`,\n  embeds: embeds,\n  username: \"Job Alert Bot\",\n  avatar_url: \"https://cdn-icons-png.flaticon.com/512/3658/3658773.png\"\n};\n\n// Return as a single item with the payload\nreturn [{ json: payload }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        -400
+      ],
+      "id": "5f60e963-3b22-4108-981a-e33423085642",
+      "name": "Build Discord Message"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the Discord payload\nconst payload = $input.first().json;\n\n// Your webhook URL (UPDATE THIS!)\nconst webhookUrl = \"https://discord.com/api/webhooks/1453315581775446028/eU8394MSOlesqUe3dwEpLaaUF4BPlGB8nz0_ZG9SttvlsSEgRpgYtfyyLx4ZXwO8TMN8\";\n\n// Send to Discord using this.helpers.request\nconst response = await this.helpers.request({\n  method: 'POST',\n  uri: webhookUrl,\n  body: payload,\n  json: true\n});\n\nconsole.log(\"✅ Sent to Discord!\");\n\nreturn $input.all();\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1904,
+        -400
+      ],
+      "id": "dfca5d4f-5455-479d-9e19-efcc30fe731c",
+      "name": "Send to Discord"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// EMAIL FINDER (Methods 1 & 2)\n// ========================================\n\nconst jobs = $input.all();\nconst results = [];\n\nfor (let item of jobs) {\n  const job = item.json;\n  let foundEmail = null;\n  let emailSource = 'NONE';\n  \n  // Get company name and clean it\n  const company = job.company || job.Company || '';\n  const companyClean = company.toLowerCase()\n    .replace(/gmbh|ag|kg|ohg|gbr|ug|se|ltd|inc/gi, '')\n    .replace(/[^a-z0-9]/gi, '')\n    .trim();\n  \n  // ========================================\n  // METHOD 1: Extract from Job Description\n  // ========================================\n  const description = job.beschreibung || job.jobTitle || '';\n  const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\\.[a-zA-Z0-9_-]+)/gi;\n  const descriptionEmails = description.match(emailRegex) || [];\n  \n  if (descriptionEmails.length > 0) {\n    foundEmail = descriptionEmails.find(e => \n      e.toLowerCase().includes('bewerbung') || \n      e.toLowerCase().includes('karriere') || \n      e.toLowerCase().includes('jobs') || \n      e.toLowerCase().includes('hr') ||\n      e.toLowerCase().includes('personal')\n    ) || descriptionEmails[0];\n    \n    emailSource = 'JOB_DESCRIPTION';\n  }\n  \n  // ========================================\n  // METHOD 2: Common Email Patterns\n  // ========================================\n  if (!foundEmail && companyClean) {\n    const possibleDomains = [\n      `${companyClean}.de`,\n      `${companyClean}.com`,\n      `${companyClean}-gmbh.de`\n    ];\n    \n    foundEmail = `bewerbung@${possibleDomains[0]}`;\n    emailSource = 'PATTERN_GUESS';\n  }\n  \n  // If still no email, mark as portal application\n  if (!foundEmail) {\n    foundEmail = 'PORTAL_APPLICATION';\n    emailSource = 'PORTAL_ONLY';\n  }\n  \n  results.push({\n    json: {\n      ...job,\n      applicationEmail: foundEmail,\n      emailSource: emailSource\n    }\n  });\n}\n\nreturn results;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        -496
+      ],
+      "id": "6a66d1ba-7166-4d35-a979-d673492a4e75",
+      "name": "Email Finder Hybrid"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Transform Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Relevant Jobs": {
+      "main": [
+        [
+          {
+            "node": "Location Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Data": {
+      "main": [
+        [
+          {
+            "node": "Email Finder Hybrid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Location Filter": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Build Discord Message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Discord Message": {
+      "main": [
+        [
+          {
+            "node": "Send to Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send to Discord": {
+      "main": [
+        []
+      ]
+    },
+    "Email Finder Hybrid": {
+      "main": [
+        [
+          {
+            "node": "Filter Relevant Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ba527a66-c296-49ed-99f7-0c35783706c4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4294ec09bb863a45d02e76f476e97d993d6e6b68742e6e92bff47b262ef3a324"
+  },
+  "id": "4XkJEn8qkUDYoI2n",
+  "tags": []
+}

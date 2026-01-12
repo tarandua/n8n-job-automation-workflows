@@ -1,0 +1,560 @@
+{
+  "name": "Auto Apply Jobs\"",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9,17 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -960,
+        -288
+      ],
+      "id": "eac229fa-eda4-4ec5-8e3b-b60ab59424b9",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TAc_sLpbw1Hq13pbVYV3_QmHIhZeFNFS_lZVBVV7LGk",
+          "mode": "list",
+          "cachedResultName": "Job Applications – Germany (Werkstudent)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TAc_sLpbw1Hq13pbVYV3_QmHIhZeFNFS_lZVBVV7LGk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TAc_sLpbw1Hq13pbVYV3_QmHIhZeFNFS_lZVBVV7LGk/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "Ready to Apply"
+            }
+          ]
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "specifyRangeA1",
+              "range": "A1:L"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -736,
+        -288
+      ],
+      "id": "68b7988c-4f37-402c-9c10-cfc0419bdea0",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XU0VARl7doZ6mDpm",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get ALL jobs from sheet\nconst allJobs = $input.all();\n\n// Filter only jobs marked \"Ready to Apply\" with email address\nconst readyJobs = allJobs.filter(item => {\n  const status = (item.json.Status || \"\").trim();\n  const applicationEmail = (item.json[\"Application Email\"] || \"\").trim();\n  \n  // Only process if Status is \"Ready to Apply\" AND email is provided\n  return status === \"Ready to Apply\" && applicationEmail.length > 0;\n});\n\nconsole.log(`📊 Total jobs in sheet: ${allJobs.length}`);\nconsole.log(`✅ Jobs ready to apply: ${readyJobs.length}`);\n\n// Log which jobs will be applied to\nreadyJobs.forEach((job, index) => {\n  console.log(`${index + 1}. ${job.json[\"Job Title\"]} at ${job.json[\"Company\"]} → ${job.json[\"Application Email\"]}`);\n});\n\nreturn readyJobs;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -512,
+        -288
+      ],
+      "id": "6b5968c7-1f8d-4961-a5fc-35b8db79b921",
+      "name": "Filter Ready Jobs"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "512a70fa-90ff-4960-9af0-e711804354f7",
+              "leftValue": "={{ $items(\"Filter Ready Jobs\").length }}\n",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -288,
+        -288
+      ],
+      "id": "c3dac2f7-7347-45c1-af48-37e9fabd7b4c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get jobs ready to apply\nconst jobs = $input.all();\n\n// Your details\nconst yourDetails = {\n  name: \"Taran Dua\",\n  email: \"duatarnt@gmail.com\",\n  phone: \"+49 15565792220\",\n  linkedin: \"linkedin.com/in/taran-dua-a72935189\",\n  university: \"Fachhochschule Südwestfalen\",\n  course: \"Business Administration with Informatics\",\n  availability: \"20 hours/week during semester\",\n  languages: \"English C1, German B2.1\"\n};\n\n// Prepare personalized application for each job\nconst applications = jobs.map(item => {\n  const job = item.json;\n  \n  // Personalized email subject\n  const subject = `Bewerbung als ${job[\"Job Title\"]} - ${yourDetails.name}`;\n  \n  // Personalized email body (German)\n  const emailBody = `Sehr geehrte Damen und Herren,\n\nmit großem Interesse habe ich Ihre Stellenausschreibung für die Position \"${job[\"Job Title\"]}\" bei ${job[\"Company\"]} gelesen. Als Student der Wirtschaftsinformatik an der ${yourDetails.university} mit praktischer Erfahrung in Python-Automatisierung, Datenanalyse und IT-Support bin ich überzeugt, dass ich Ihr Team erfolgreich unterstützen kann.\n\nMeine Qualifikationen im Überblick:\n• Python-Programmierung & Datenautomatisierung (pandas, numpy)\n• Excel-Reporting & Analyse (Pivot-Tabellen, VBA)\n• Technische Dokumentation & Prozessoptimierung\n• Verfügbarkeit: ${yourDetails.availability}\n• Sprachkenntnisse: ${yourDetails.languages}\n\nDurch meine bisherige Tätigkeit als Assistant Web Developer habe ich fundierte Erfahrungen in der Automatisierung von Datenverarbeitungsprozessen, der Erstellung von technischen Dokumentationen und der Zusammenarbeit in agilen Teams gesammelt.\n\nMeine vollständigen Bewerbungsunterlagen (Lebenslauf und Anschreiben) finden Sie im Anhang dieser E-Mail.\n\nIch freue mich sehr auf die Möglichkeit eines persönlichen Gesprächs.\n\nMit freundlichen Grüßen\n${yourDetails.name}\n\n---\nKontakt:\n📧 ${yourDetails.email}\n📱 ${yourDetails.phone}\n💼 ${yourDetails.linkedin}\n\nReferenz: ${job[\"Apply Link\"]}`;\n\n  return {\n    json: {\n      jobTitle: job[\"Job Title\"],\n      company: job[\"Company\"],\n      location: job[\"Location\"],\n      applyLink: job[\"Apply Link\"],\n      rowNumber: job[\"row_number\"],\n      recipientEmail: job[\"Application Email\"],\n      emailSubject: subject,\n      emailBody: emailBody,\n      dateAdded: job[\"Date Added\"]\n    }\n  };\n});\n\nconsole.log(`📧 Prepared ${applications.length} application emails`);\n\nreturn applications;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        -288
+      ],
+      "id": "7e8e053c-2c18-464e-bb6a-ee94db75fb2a",
+      "name": "Prepare Applications"
+    },
+    {
+      "parameters": {
+        "url": "https://drive.google.com/uc?export=download&id=1htI6sN-s8h0sifd-wje3jagbg_AWTFLm",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "cv"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        160,
+        -288
+      ],
+      "id": "0c5a07d7-3371-4f70-a0a0-c548c100c4d2",
+      "name": "Download Cv"
+    },
+    {
+      "parameters": {
+        "url": "https://drive.google.com/uc?export=download&id=13S4iXXdJ4zC71otb0b3_k_g_Q54U1wak",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "coverLetter"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        384,
+        -288
+      ],
+      "id": "3b5fc98a-8960-4e6b-92b0-2fb9d2e3aad4",
+      "name": "Downlaod CoverLetter"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1TAc_sLpbw1Hq13pbVYV3_QmHIhZeFNFS_lZVBVV7LGk",
+          "mode": "list",
+          "cachedResultName": "Job Applications – Germany (Werkstudent)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TAc_sLpbw1Hq13pbVYV3_QmHIhZeFNFS_lZVBVV7LGk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TAc_sLpbw1Hq13pbVYV3_QmHIhZeFNFS_lZVBVV7LGk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Applied",
+            "Applied Date": "={{ $now.format('MM/DD/YYYY HH:mm') }}\n",
+            "Application Method": "Email - Automated",
+            "row_number": 0
+          },
+          "matchingColumns": [
+            "Apply Link"
+          ],
+          "schema": [
+            {
+              "id": "Date Added",
+              "displayName": "Date Added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Type",
+              "displayName": "Job Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Apply Link",
+              "displayName": "Apply Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Application Email",
+              "displayName": "Application Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Applied Date",
+              "displayName": "Applied Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Application Method",
+              "displayName": "Application Method",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "embeds",
+              "displayName": "embeds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "username",
+              "displayName": "username",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "avatar_url",
+              "displayName": "avatar_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        352,
+        -688
+      ],
+      "id": "48a38ebf-2c89-4af3-ae50-58ffca8a9893",
+      "name": "Mark as Applied",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XU0VARl7doZ6mDpm",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const applications = $input.all();\n\nconst payload = {\n  content: `✅ **${applications.length} Job${applications.length > 1 ? 's' : ''} Processed!**\\n\\n(Email sending will be added later)`,\n  embeds: applications.map(app => ({\n    title: `📋 Processed: ${app.json.jobTitle}`,\n    url: app.json.applyLink,\n    color: 5763719, // Green\n    fields: [\n      {\n        name: \"🏢 Company\",\n        value: app.json.company,\n        inline: true\n      },\n      {\n        name: \"📍 Location\",\n        value: app.json.location,\n        inline: true\n      },\n      {\n        name: \"📧 Ready to send to\",\n        value: app.json.recipientEmail,\n        inline: false\n      },\n      {\n        name: \"⚠️ Note\",\n        value: \"Email functionality will be added later. Status updated in sheet.\",\n        inline: false\n      }\n    ],\n    footer: {\n      text: `Processed on ${new Date().toLocaleString('de-DE')}`\n    },\n    timestamp: new Date().toISOString()\n  })),\n  username: \"Job Application Bot\",\n  avatar_url: \"https://cdn-icons-png.flaticon.com/512/3658/3658773.png\"\n};\n\nreturn [{json: payload}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1536,
+        -288
+      ],
+      "id": "54c953ad-0cd8-441a-b775-e18f01b78a6c",
+      "name": "Build Success Notification"
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = $input.first().json;\nconst webhookUrl = \"https://discord.com/api/webhooks/1453315581775446028/eU8394MSOlesqUe3dwEpLaaUF4BPlGB8nz0_ZG9SttvlsSEgRpgYtfyyLx4ZXwO8TMN8\";\n\nawait this.helpers.request({\n  method: 'POST',\n  uri: webhookUrl,\n  body: payload,\n  json: true\n});\n\nconsole.log(\"✅ Discord notification sent!\");\n\nreturn $input.all();\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        -288
+      ],
+      "id": "dbc36737-8cf2-4854-90d1-a65e263cd1b8",
+      "name": "Send to Discord"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json[\"recipientEmail\"] }}",
+        "subject": "={{ $json[\"emailSubject\"] }}",
+        "emailType": "text",
+        "message": "={{ $json[\"emailBody\"] }}",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "cv"
+              },
+              {
+                "property": "coverLetter"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        592,
+        -288
+      ],
+      "id": "686c3624-9318-4fb9-8217-8c06bf275af9",
+      "name": "Send a message",
+      "webhookId": "9f7eea3e-e486-4c23-87b5-fe2c4724e0c9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "PjRpOAhlhklthBaN",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Filter Ready Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Ready Jobs": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Prepare Applications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Applications": {
+      "main": [
+        [
+          {
+            "node": "Download Cv",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Cv": {
+      "main": [
+        [
+          {
+            "node": "Downlaod CoverLetter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Downlaod CoverLetter": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as Applied": {
+      "main": [
+        []
+      ]
+    },
+    "Build Success Notification": {
+      "main": [
+        [
+          {
+            "node": "Send to Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Build Success Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "dbb62eb6-f1e6-4bbb-b59a-4f227d16b4ff",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4294ec09bb863a45d02e76f476e97d993d6e6b68742e6e92bff47b262ef3a324"
+  },
+  "id": "G2SRJivC2nxOfKKa",
+  "tags": []
+}
